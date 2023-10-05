@@ -16,7 +16,7 @@ app.use(express.static(__dirname));
 // Configuration du client SFTP à partir des variables d'environnement
 // (Assurez-vous de définir ces variables d'environnement en production !)
 const SFTP_CONFIG = {
-    host: 'sftp://msr1001.minestrator.com',
+    host: 'msr1001.minestrator.com',
     port: 2022, // Utilisez 2022 comme port par défaut si non défini
     username: 'sushi12.ec21c710',
     password: '3073Mon330Oct-MSR'
