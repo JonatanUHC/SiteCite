@@ -16,10 +16,10 @@ app.use(express.static(__dirname));
 // Configuration du client SFTP à partir des variables d'environnement
 // (Assurez-vous de définir ces variables d'environnement en production !)
 const SFTP_CONFIG = {
-    host: process.env.SFTP_HOST,
-    port: process.env.SFTP_PORT || 2022, // Utilisez 2022 comme port par défaut si non défini
-    username: process.env.SFTP_USERNAME,
-    password: process.env.SFTP_PASSWORD
+    host: 'sftp://msr1001.minestrator.com',
+    port: 2022, // Utilisez 2022 comme port par défaut si non défini
+    username: 'sushi12.ec21c710',
+    password: '3073Mon330Oct-MSR'
 };
 
 // Fonction pour envoyer un fichier local vers le serveur SFTP
