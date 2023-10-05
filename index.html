@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Liste d'objets Minecraft</title>
+</head>
+
+<body>
+    <h1>Liste d'objets Minecraft</h1>
+    <link rel="stylesheet" type="text/css" href="styles.css">
+    <div id="categories-container">
+        <!-- Les catégories et éléments seront remplis dynamiquement depuis le JSON -->
+    </div>
+    <button onclick="saveData()">Sauvegarder</button>
+
+    <script>
+        // Variable pour stocker les données initiales
+        let initialData = {};
+
+        // Fonction pour charger les données depuis le fichier JSON
+        function loadJSON() {
+            fetch('/getMinecraftData')
+                .then(response => response.json())
+                .then(data => {
+                    const categoriesContainer = document.getElementById('categories-container');
+                    initialData = data; // Sauvegarder les données initiales
+
+                    // Parcourir les catégories du JSON
+                    Object.keys(data).forEach(category => {
+                        const categoryDiv = document.createElement('div');
+                        const categoryTitle = document.createElement('h2');
+                        categoryTitle.textContent = category;
+                        categoryDiv.appendChild(categoryTitle);
+
+                        const itemList = document.createElement('ul');
+
+                        // Parcourir les éléments de la catégorie actuelle
+                        Object.keys(data[category]).forEach(itemName => {
+                            const listItem = document.createElement('li');
+                            listItem.innerHTML = `
+                                <span>Nom de l'objet : ${itemName}</span>
+                                <span>Valeur : <input type="number" class="object-value" data-category="${category}" data-itemname="${itemName}" value="${data[category][itemName]}"></span>
+                            `;
+                            itemList.appendChild(listItem);
+                        });
+
+                        categoryDiv.appendChild(itemList);
+                        categoriesContainer.appendChild(categoryDiv);
+                    });
+                })
+                .catch(error => console.error('Erreur lors du chargement des données JSON :', error));
+        }
+
+        // Appeler la fonction de chargement au chargement de la page
+        window.onload = loadJSON;
+
+        // Fonction pour sauvegarder les données modifiées sur le serveur
+        function saveData() {
+            const objects = document.querySelectorAll(".object-value");
+            const updatedData = {};
+
+            objects.forEach(obj => {
+                const category = obj.getAttribute('data-category');
+                const itemName = obj.getAttribute('data-itemname');
+                const itemValue = parseInt(obj.value);
+
+                if (!updatedData[category]) {
+                    updatedData[category] = {};
+                }
+
+                updatedData[category][itemName] = itemValue;
+            });
+
+            // Envoyer les données au serveur pour mise à jour
+            fetch('/updateMinecraftData', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(updatedData),
+            }).then(response => {
+                if (response.ok) {
+                    console.log('Données Minecraft mises à jour avec succès.');
+                } else {
+                    console.error('Erreur lors de la mise à jour des données Minecraft.');
+                }
+            });
+        }
+        function showNotification() {
+        const notification = document.createElement("div");
+        notification.className = "notification";
+        notification.textContent = "Hop, prix changé!";
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+            document.body.removeChild(notification);
+        }, 2000);
+    }
+
+    document.querySelector("button").addEventListener("click", showNotification);
+</script>
+</body>
+
+</html>
