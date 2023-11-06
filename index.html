@@ -27,34 +27,35 @@
     </div>
 
     <div id="Stats" class="tabcontent">
-        <h3>Stats</h3>function loadPlayerStats() {
-            fetch('/getAllPlayerStats')
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`Erreur réseau: Le serveur a répondu avec un statut ${response.status}`);
-                    }
-                    return response.json();
-                })
-                .then(allStats => {
-                    // Ici, allStats est un tableau de tous les objets stats pour chaque joueur
-                    allStats.forEach(playerStats => {
-                        // Maintenant, nous pouvons formater chaque objet stats et l'afficher
-                        const formattedStatsHtml = formatMinecraftStats(playerStats.stats); // Correction ici
-                        document.getElementById('stats-container').innerHTML += formattedStatsHtml;
-                    });
-                })
-                .catch(error => {
-                    console.error('Erreur lors du chargement des stats des joueurs :', error);
-                    alert('Erreur lors du chargement des stats des joueurs. Vérifiez la console pour plus de détails.');
-                });
-        }        
+        <h3>Stats</h3>
         <div id="stats-container">
             <!-- Les statistiques des joueurs seront affichées ici -->
         </div>
         <button id="loadStatsButton">Charger les stats des joueurs</button>
     </div>
-
+    
     <script>
+function loadPlayerStats() {
+    fetch('/getAllPlayerStats')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Erreur réseau: Le serveur a répondu avec un statut ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(allStats => {
+            // Ici, allStats est un tableau de tous les objets stats pour chaque joueur
+            allStats.forEach(playerStats => {
+                // Maintenant, nous pouvons formater chaque objet stats et l'afficher
+                const formattedStatsHtml = formatMinecraftStats(playerStats.stats); // Correction ici
+                document.getElementById('stats-container').innerHTML += formattedStatsHtml;
+            });
+        })
+        .catch(error => {
+            console.error('Erreur lors du chargement des stats des joueurs :', error);
+            alert('Erreur lors du chargement des stats des joueurs. Vérifiez la console pour plus de détails.');
+        });
+}        
         // Vos fonctions JavaScript pour gérer les données et l'affichage
         let initialData = {};
 
@@ -96,18 +97,19 @@ function loadJSON() {
         window.onload = loadJSON;
 
         // Fonction pour sauvegarder les données modifiées sur le serveur
-function formatMinecraftStats(stats) {
-    let formattedHtml = "<div class='stats'>";
+        function formatMinecraftStats(playerStats) {
+    let formattedHtml = "<div class='player-stats'>";
 
-    // Parcourir chaque catégorie de statistiques
-    for (const category in stats) {
-        formattedHtml += `<h2>${formatCategoryName(category)}</h2><ul>`;
-        
-        // Parcourir chaque élément de la catégorie
-        for (const key in stats[category]) {
-            // Convertir minecraft:stone => Stone, etc.
-            const statName = formatStatName(key);
-            const statValue = stats[category][key];
+    // Parcourir les catégories de statistiques au premier niveau
+    for (const category in playerStats.stats) {
+        formattedHtml += `<h2>${formatCategoryName(category)}</h2>`;
+        const stats = playerStats.stats[category];
+        formattedHtml += "<ul>";
+
+        // Parcourir chaque élément de la catégorie de statistiques
+        for (const statKey in stats) {
+            const statName = formatStatName(statKey);
+            const statValue = stats[statKey];
             formattedHtml += `<li>${statName} : ${statValue}</li>`;
         }
         formattedHtml += "</ul>";
@@ -118,20 +120,16 @@ function formatMinecraftStats(stats) {
 }
 
 function formatCategoryName(category) {
-    // Retirer le préfixe et mettre en majuscule la première lettre de chaque mot
+    // Cette fonction supprime le préfixe "minecraft:" et remplace les underscores par des espaces
+    // Elle met également en majuscule la première lettre de chaque mot
     return category.replace('minecraft:', '').replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
 }
 
 function formatStatName(stat) {
-    // Retirer le préfixe minecraft si présent et formater
-    return stat.replace('minecraft:', '').split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+    // Cette fonction supprime le préfixe "minecraft:" du nom de la stat
+    // Elle remplace également les underscores par des espaces et met en majuscule la première lettre de chaque mot
+    return stat.replace('minecraft:', '').replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
 }
-
-    // Exemple d'utilisation:
-    // Supposons que stats est l'objet JSON que vous avez fourni
-    const formattedStatsHtml = formatMinecraftStats(stats);
-    document.getElementById('stats-container').innerHTML = formattedStatsHtml;
-
 // Fonction pour afficher les catégories de données
 function displayCategories(data) {
     const categoriesContainer = document.getElementById('categories-container');
@@ -216,23 +214,29 @@ function loadPlayerStats() {
     fetch('/getAllPlayerStats')
         .then(response => {
             if (!response.ok) {
+                // Si la réponse n'est pas ok, lancer une erreur qui sera attrapée par le bloc catch
                 throw new Error(`Erreur réseau: Le serveur a répondu avec un statut ${response.status}`);
             }
-            return response.json();
+            return response.json(); // Convertir la réponse en JSON si tout va bien
         })
         .then(allStats => {
-            // Ici, allStats est un tableau de tous les objets stats pour chaque joueur
+            // Supposer que allStats est un tableau contenant les statistiques de tous les joueurs
+            const statsContainer = document.getElementById('stats-container');
+            statsContainer.innerHTML = ''; // Nettoyer le conteneur
+
             allStats.forEach(playerStats => {
-                // Maintenant, nous pouvons formater chaque objet stats et l'afficher
-                const formattedStatsHtml = formatMinecraftStats(playerStats.stats); // Correction ici
-                document.getElementById('stats-container').innerHTML += formattedStatsHtml;
+                // Formater et ajouter les statistiques de chaque joueur au conteneur
+                const formattedStatsHtml = formatMinecraftStats(playerStats);
+                statsContainer.innerHTML += formattedStatsHtml;
             });
         })
         .catch(error => {
+            // Si une erreur est attrapée, afficher un message d'erreur
             console.error('Erreur lors du chargement des stats des joueurs :', error);
             alert('Erreur lors du chargement des stats des joueurs. Vérifiez la console pour plus de détails.');
         });
 }
+
 
 // Attacher les gestionnaires d'événements aux boutons après que le DOM est chargé
 document.addEventListener('DOMContentLoaded', () => {
