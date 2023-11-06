@@ -12,7 +12,7 @@
     </div>
     <button id="saveButton">Sauvegarder</button>
     <button id="loadStatsButton">Voir les stats des joueurs</button>
-
+    <div id="stats-container"></div>
     <script>
         // Variables pour stocker les données initiales
         let initialData = {};
@@ -29,6 +29,41 @@
                     console.error('Erreur lors du chargement des données JSON :', error);
                 });
         }
+        function formatMinecraftStats(stats) {
+            let formattedHtml = "<div class='stats'>";
+
+            // Parcourir chaque catégorie de statistiques
+            for (const category in stats) {
+                formattedHtml += `<h2>${formatCategoryName(category)}</h2><ul>`;
+                
+                // Parcourir chaque élément de la catégorie
+                for (const key in stats[category]) {
+                    // Convertir minecraft:stone => Stone, etc.
+                    const statName = formatStatName(key);
+                    const statValue = stats[category][key];
+                    formattedHtml += `<li>${statName} : ${statValue}</li>`;
+                }
+                formattedHtml += "</ul>";
+            }
+
+            formattedHtml += "</div>";
+            return formattedHtml;
+        }
+
+        function formatCategoryName(category) {
+            // Retirer le préfixe et mettre en majuscule la première lettre de chaque mot
+            return category.replace('minecraft:', '').replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+        }
+
+        function formatStatName(stat) {
+            // Retirer le préfixe minecraft si présent et formater
+            return stat.replace('minecraft:', '').split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+        }
+
+            // Exemple d'utilisation:
+            // Supposons que stats est l'objet JSON que vous avez fourni
+            const formattedStatsHtml = formatMinecraftStats(stats);
+            document.getElementById('stats-container').innerHTML = formattedStatsHtml;
 
         // Fonction pour afficher les catégories de données
         function displayCategories(data) {
