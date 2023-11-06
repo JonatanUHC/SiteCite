@@ -29,12 +29,10 @@ async function uploadToSFTP(localPath, remotePath) {
 }
 
 app.get('/getMinecraftData', (req, res) => {
-    // Cette route peut servir des données pour l'onglet "Prix"
-    const dataPath = path.join(__dirname, 'data', 'minecraft-data.json'); // Ajustez le chemin selon vos besoins
-    fs.readFile(dataPath, 'utf8', (err, data) => {
+    fs.readFile('minecraft-data.json', 'utf8', (err, data) => {
         if (err) {
-            console.error('Erreur lors de la lecture du fichier de données des prix :', err);
-            res.status(500).send('Erreur lors de la lecture des données des prix');
+            console.error('Erreur lors de la lecture du fichier JSON :', err);
+            res.status(500).send('Erreur lors de la lecture du fichier JSON');
             return;
         }
         res.send(data);
@@ -42,16 +40,15 @@ app.get('/getMinecraftData', (req, res) => {
 });
 
 app.post('/updateMinecraftData', (req, res) => {
-    // Cette route peut être utilisée pour sauvegarder les données de l'onglet "Prix"
-    const dataPath = path.join(__dirname, 'data', 'minecraft-data.json'); // Ajustez le chemin selon vos besoins
-    fs.writeFile(dataPath, JSON.stringify(req.body, null, 2), async (err) => {
+    const minecraftData = req.body;
+    fs.writeFile('minecraft-data.json', JSON.stringify(minecraftData, null, 2), async (err) => {
         if (err) {
-            console.error('Erreur lors de la mise à jour des données des prix :', err);
-            res.status(500).send('Erreur lors de la mise à jour des données des prix');
+            console.error('Erreur lors de la mise à jour du fichier JSON :', err);
+            res.status(500).send('Erreur lors de la mise à jour du fichier JSON');
             return;
         }
-        console.log('Données des prix mises à jour avec succès.');
-        await uploadToSFTP(dataPath, '/plugins/cite/minecraft-data.json');
+        console.log('Fichier JSON mis à jour avec succès.');
+        await uploadToSFTP('minecraft-data.json', '/plugins/cite/minecraft-data.json');
         res.sendStatus(200);
     });
 });
