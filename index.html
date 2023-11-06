@@ -40,16 +40,42 @@
 
 // Fonction pour charger les données depuis le fichier JSON
 function loadJSON() {
-    fetch('/getMinecraftData')
-        .then(response => response.json())
-        .then(data => {
-            initialData = data;
-            displayCategories(data);
-        })
-        .catch(error => {
-            console.error('Erreur lors du chargement des données JSON :', error);
-        });
-}
+            fetch('/getMinecraftData')
+                .then(response => response.json())
+                .then(data => {
+                    const categoriesContainer = document.getElementById('categories-container');
+                    initialData = data; // Sauvegarder les données initiales
+
+                    // Parcourir les catégories du JSON
+                    Object.keys(data).forEach(category => {
+                        const categoryDiv = document.createElement('div');
+                        const categoryTitle = document.createElement('h2');
+                        categoryTitle.textContent = category;
+                        categoryDiv.appendChild(categoryTitle);
+
+                        const itemList = document.createElement('ul');
+
+                        // Parcourir les éléments de la catégorie actuelle
+                        Object.keys(data[category]).forEach(itemName => {
+                            const listItem = document.createElement('li');
+                            listItem.innerHTML = `
+                                <span>Nom de l'objet : ${itemName}</span>
+                                <span>Valeur : <input type="number" class="object-value" data-category="${category}" data-itemname="${itemName}" value="${data[category][itemName]}"></span>
+                            `;
+                            itemList.appendChild(listItem);
+                        });
+
+                        categoryDiv.appendChild(itemList);
+                        categoriesContainer.appendChild(categoryDiv);
+                    });
+                })
+                .catch(error => console.error('Erreur lors du chargement des données JSON :', error));
+        }
+
+        // Appeler la fonction de chargement au chargement de la page
+        window.onload = loadJSON;
+
+        // Fonction pour sauvegarder les données modifiées sur le serveur
 function formatMinecraftStats(stats) {
     let formattedHtml = "<div class='stats'>";
 
