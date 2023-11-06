@@ -7,165 +7,209 @@
 </head>
 <body>
     <h1>Liste d'objets Minecraft</h1>
-    <div id="categories-container">
-        <!-- Les catégories et éléments seront remplis dynamiquement depuis le JSON -->
+    <div class="tab">
+        <button class="tablinks" onclick="openTab(event, 'Accueil')">Accueil</button>
+        <button class="tablinks" onclick="openTab(event, 'Prix')">Prix</button>
+        <button class="tablinks" onclick="openTab(event, 'Stats')">Stats</button>
     </div>
-    <button id="saveButton">Sauvegarder</button>
-    <button id="loadStatsButton">Voir les stats des joueurs</button>
-    <div id="stats-container"></div>
+
+    <div id="Accueil" class="tabcontent">
+        <h3>Accueil</h3>
+        <p>Bienvenue sur la page d'accueil des objets Minecraft.</p>
+    </div>
+
+    <div id="Prix" class="tabcontent">
+        <h3>Prix</h3>
+        <div id="categories-container">
+            <!-- Les catégories et éléments des prix seront remplis dynamiquement depuis le JSON -->
+        </div>
+        <button id="saveButton">Sauvegarder</button>
+    </div>
+
+    <div id="Stats" class="tabcontent">
+        <h3>Stats</h3>
+        <div id="stats-container">
+            <!-- Les statistiques des joueurs seront affichées ici -->
+        </div>
+        <button id="loadStatsButton">Charger les stats des joueurs</button>
+    </div>
+
     <script>
-        // Variables pour stocker les données initiales
+        // Vos fonctions JavaScript pour gérer les données et l'affichage
         let initialData = {};
 
-        // Fonction pour charger les données depuis le fichier JSON
-        function loadJSON() {
-            fetch('/getMinecraftData')
-                .then(response => response.json())
-                .then(data => {
-                    initialData = data;
-                    displayCategories(data);
-                })
-                .catch(error => {
-                    console.error('Erreur lors du chargement des données JSON :', error);
-                });
-        }
-        function formatMinecraftStats(stats) {
-            let formattedHtml = "<div class='stats'>";
+// Fonction pour charger les données depuis le fichier JSON
+function loadJSON() {
+    fetch('/getMinecraftData')
+        .then(response => response.json())
+        .then(data => {
+            initialData = data;
+            displayCategories(data);
+        })
+        .catch(error => {
+            console.error('Erreur lors du chargement des données JSON :', error);
+        });
+}
+function formatMinecraftStats(stats) {
+    let formattedHtml = "<div class='stats'>";
 
-            // Parcourir chaque catégorie de statistiques
-            for (const category in stats) {
-                formattedHtml += `<h2>${formatCategoryName(category)}</h2><ul>`;
-                
-                // Parcourir chaque élément de la catégorie
-                for (const key in stats[category]) {
-                    // Convertir minecraft:stone => Stone, etc.
-                    const statName = formatStatName(key);
-                    const statValue = stats[category][key];
-                    formattedHtml += `<li>${statName} : ${statValue}</li>`;
-                }
-                formattedHtml += "</ul>";
+    // Parcourir chaque catégorie de statistiques
+    for (const category in stats) {
+        formattedHtml += `<h2>${formatCategoryName(category)}</h2><ul>`;
+        
+        // Parcourir chaque élément de la catégorie
+        for (const key in stats[category]) {
+            // Convertir minecraft:stone => Stone, etc.
+            const statName = formatStatName(key);
+            const statValue = stats[category][key];
+            formattedHtml += `<li>${statName} : ${statValue}</li>`;
+        }
+        formattedHtml += "</ul>";
+    }
+
+    formattedHtml += "</div>";
+    return formattedHtml;
+}
+
+function formatCategoryName(category) {
+    // Retirer le préfixe et mettre en majuscule la première lettre de chaque mot
+    return category.replace('minecraft:', '').replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+}
+
+function formatStatName(stat) {
+    // Retirer le préfixe minecraft si présent et formater
+    return stat.replace('minecraft:', '').split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+}
+
+    // Exemple d'utilisation:
+    // Supposons que stats est l'objet JSON que vous avez fourni
+    const formattedStatsHtml = formatMinecraftStats(stats);
+    document.getElementById('stats-container').innerHTML = formattedStatsHtml;
+
+// Fonction pour afficher les catégories de données
+function displayCategories(data) {
+    const categoriesContainer = document.getElementById('categories-container');
+    categoriesContainer.innerHTML = ''; // Nettoyer les catégories précédentes
+
+    Object.keys(data).forEach(category => {
+        const categoryDiv = document.createElement('div');
+        const categoryTitle = document.createElement('h2');
+        categoryTitle.textContent = category;
+        categoryDiv.appendChild(categoryTitle);
+
+        const itemList = document.createElement('ul');
+
+        Object.keys(data[category]).forEach(itemName => {
+            const listItem = document.createElement('li');
+            listItem.innerHTML = `
+                <span>Nom de l'objet : ${itemName}</span>
+                <span>Valeur : <input type="number" class="object-value" data-category="${category}" data-itemname="${itemName}" value="${data[category][itemName]}"></span>
+            `;
+            itemList.appendChild(listItem);
+        });
+
+        categoryDiv.appendChild(itemList);
+        categoriesContainer.appendChild(categoryDiv);
+    });
+}
+
+// Fonction pour sauvegarder les données modifiées sur le serveur
+function saveData() {
+    const objects = document.querySelectorAll(".object-value");
+    const updatedData = {};
+
+    objects.forEach(obj => {
+        const category = obj.getAttribute('data-category');
+        const itemName = obj.getAttribute('data-itemname');
+        const itemValue = parseInt(obj.value, 10);
+
+        if (!updatedData[category]) {
+            updatedData[category] = {};
+        }
+
+        updatedData[category][itemName] = itemValue;
+    });
+
+    fetch('/updateMinecraftData', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedData),
+    })
+    .then(response => {
+        if (response.ok) {
+            console.log('Données Minecraft mises à jour avec succès.');
+            showNotification('Données sauvegardées avec succès!');
+        } else {
+            throw new Error('Erreur lors de la sauvegarde des données.');
+        }
+    })
+    .catch(error => {
+        console.error('Erreur lors de la mise à jour des données Minecraft :', error);
+        showNotification('Échec de la sauvegarde des données!');
+    });
+}
+
+// Fonction pour afficher une notification
+function showNotification(message) {
+    const notification = document.createElement("div");
+    notification.className = "notification";
+    notification.textContent = message;
+    document.body.appendChild(notification);
+
+    setTimeout(() => {
+        document.body.removeChild(notification);
+    }, 2000);
+}
+
+// Fonction pour charger et afficher les statistiques des joueurs
+function loadPlayerStats() {
+    fetch('/getAllPlayerStats')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Erreur réseau: Le serveur a répondu avec un statut ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(stats => {
+            const newWindow = window.open('', '_blank');
+            newWindow.document.write('<h1>Stats des joueurs</h1>');
+            newWindow.document.write('<pre>' + JSON.stringify(stats, null, 2) + '</pre>');
+        })
+        .catch(error => {
+            console.error('Erreur lors du chargement des stats des joueurs :', error);
+            alert('Erreur lors du chargement des stats des joueurs. Vérifiez la console pour plus de détails.');
+        });
+}
+        // Fonction pour ouvrir un onglet spécifique
+        function openTab(evt, tabName) {
+            // Déclarer toutes les variables
+            var i, tabcontent, tablinks;
+
+            // Obtenir tous les éléments avec la classe "tabcontent" et les cacher
+            tabcontent = document.getElementsByClassName("tabcontent");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
             }
 
-            formattedHtml += "</div>";
-            return formattedHtml;
+            // Obtenir tous les éléments avec la classe "tablinks" et supprimer la classe "active"
+            tablinks = document.getElementsByClassName("tablinks");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].className = tablinks[i].className.replace(" active", "");
+            }
+
+            // Afficher l'onglet courant et ajouter une classe "active" au bouton qui a ouvert l'onglet
+            document.getElementById(tabName).style.display = "block";
+            evt.currentTarget.className += " active";
         }
 
-        function formatCategoryName(category) {
-            // Retirer le préfixe et mettre en majuscule la première lettre de chaque mot
-            return category.replace('minecraft:', '').replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-        }
-
-        function formatStatName(stat) {
-            // Retirer le préfixe minecraft si présent et formater
-            return stat.replace('minecraft:', '').split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
-        }
-
-            // Exemple d'utilisation:
-            // Supposons que stats est l'objet JSON que vous avez fourni
-            const formattedStatsHtml = formatMinecraftStats(stats);
-            document.getElementById('stats-container').innerHTML = formattedStatsHtml;
-
-        // Fonction pour afficher les catégories de données
-        function displayCategories(data) {
-            const categoriesContainer = document.getElementById('categories-container');
-            categoriesContainer.innerHTML = ''; // Nettoyer les catégories précédentes
-
-            Object.keys(data).forEach(category => {
-                const categoryDiv = document.createElement('div');
-                const categoryTitle = document.createElement('h2');
-                categoryTitle.textContent = category;
-                categoryDiv.appendChild(categoryTitle);
-
-                const itemList = document.createElement('ul');
-
-                Object.keys(data[category]).forEach(itemName => {
-                    const listItem = document.createElement('li');
-                    listItem.innerHTML = `
-                        <span>Nom de l'objet : ${itemName}</span>
-                        <span>Valeur : <input type="number" class="object-value" data-category="${category}" data-itemname="${itemName}" value="${data[category][itemName]}"></span>
-                    `;
-                    itemList.appendChild(listItem);
-                });
-
-                categoryDiv.appendChild(itemList);
-                categoriesContainer.appendChild(categoryDiv);
-            });
-        }
-
-        // Fonction pour sauvegarder les données modifiées sur le serveur
-        function saveData() {
-            const objects = document.querySelectorAll(".object-value");
-            const updatedData = {};
-
-            objects.forEach(obj => {
-                const category = obj.getAttribute('data-category');
-                const itemName = obj.getAttribute('data-itemname');
-                const itemValue = parseInt(obj.value, 10);
-
-                if (!updatedData[category]) {
-                    updatedData[category] = {};
-                }
-
-                updatedData[category][itemName] = itemValue;
-            });
-
-            fetch('/updateMinecraftData', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(updatedData),
-            })
-            .then(response => {
-                if (response.ok) {
-                    console.log('Données Minecraft mises à jour avec succès.');
-                    showNotification('Données sauvegardées avec succès!');
-                } else {
-                    throw new Error('Erreur lors de la sauvegarde des données.');
-                }
-            })
-            .catch(error => {
-                console.error('Erreur lors de la mise à jour des données Minecraft :', error);
-                showNotification('Échec de la sauvegarde des données!');
-            });
-        }
-
-        // Fonction pour afficher une notification
-        function showNotification(message) {
-            const notification = document.createElement("div");
-            notification.className = "notification";
-            notification.textContent = message;
-            document.body.appendChild(notification);
-
-            setTimeout(() => {
-                document.body.removeChild(notification);
-            }, 2000);
-        }
-
-        // Fonction pour charger et afficher les statistiques des joueurs
-        function loadPlayerStats() {
-            fetch('/getAllPlayerStats')
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`Erreur réseau: Le serveur a répondu avec un statut ${response.status}`);
-                    }
-                    return response.json();
-                })
-                .then(stats => {
-                    const newWindow = window.open('', '_blank');
-                    newWindow.document.write('<h1>Stats des joueurs</h1>');
-                    newWindow.document.write('<pre>' + JSON.stringify(stats, null, 2) + '</pre>');
-                })
-                .catch(error => {
-                    console.error('Erreur lors du chargement des stats des joueurs :', error);
-                    alert('Erreur lors du chargement des stats des joueurs. Vérifiez la console pour plus de détails.');
-                });
-        }
-
-        // Attacher les gestionnaires d'événements après le chargement du contenu de la page
+        // Attacher les gestionnaires d'événements aux boutons
         document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('saveButton').addEventListener('click', saveData);
             document.getElementById('loadStatsButton').addEventListener('click', loadPlayerStats);
+            // Ouvrir l'onglet Accueil par défaut
+            document.querySelector('.tablinks').click();
         });
 
         // Charger les données JSON au chargement de la page

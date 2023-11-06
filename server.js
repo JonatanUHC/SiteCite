@@ -78,6 +78,7 @@ app.get('/getAllPlayerStats', async (req, res) => {
         await sftp.end();
     }
 });
+
 // Route catch-all pour gérer toutes les autres requêtes et renvoyer l'index.html
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
