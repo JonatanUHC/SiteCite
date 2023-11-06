@@ -68,3 +68,23 @@ app.get('*', (req, res) => {
 app.listen(port, () => {
     console.log(`Server started on port ${port}`);
 });
+app.get('/getAllPlayerStats', async (req, res) => {
+    const sftp = new sftpClient();
+    try {
+        await sftp.connect(SFTP_CONFIG);
+        const fileList = await sftp.list('/world/stats');
+        const playerStatsPromises = fileList.map(file => {
+            return sftp.get(`/world/stats/${file.name}`);
+        });
+
+        const statsFiles = await Promise.all(playerStatsPromises);
+        const allStats = statsFiles.map(buffer => JSON.parse(buffer.toString()));
+        res.json(allStats);
+    } catch (error) {
+        console.error('Erreur lors de la récupération des fichiers stats des joueurs via SFTP:', error);
+        res.status(500).send('Erreur lors de la récupération des stats des joueurs');
+    } finally {
+        await sftp.end();
+    }
+});
+
