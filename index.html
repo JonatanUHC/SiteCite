@@ -12,7 +12,7 @@
         <!-- Les catégories et éléments seront remplis dynamiquement depuis le JSON -->
     </div>
     <button onclick="saveData()">Sauvegarder</button>
-
+    <button id="loadStatsButton">Voir les stats des joueurs</button>
     <script>
         // Variable pour stocker les données initiales
         let initialData = {};
@@ -100,8 +100,6 @@
     document.querySelector("button").addEventListener("click", showNotification);
 
 
-<button onclick="loadPlayerStats()">Voir les stats des joueurs</button>
-
    // Fonction pour charger et afficher les statistiques des joueurs
 function loadPlayerStats() {
     console.log("Chargement des statistiques des joueurs...");
@@ -128,17 +126,6 @@ function loadPlayerStats() {
             alert('Erreur lors du chargement des stats des joueurs. Vérifiez la console pour plus de détails.');
         });
 }
-
-// Ajouter l'écouteur d'événement au bouton après le chargement du contenu de la page
-document.addEventListener('DOMContentLoaded', (event) => {
-    // Sélectionner le bouton par son texte, assurez-vous qu'il est unique ou utilisez une autre méthode si nécessaire
-    const statsButton = document.querySelector("button:contains('Voir les stats des joueurs')");
-    if (statsButton) {
-        statsButton.addEventListener("click", loadPlayerStats);
-    } else {
-        console.error("Le bouton pour voir les stats des joueurs n'a pas été trouvé sur la page.");
-    }
-});
 
 </script>
 
