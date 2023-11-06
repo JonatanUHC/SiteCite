@@ -30,7 +30,7 @@ async function uploadToSFTP(localPath, remotePath) {
 
 app.get('/getMinecraftData', (req, res) => {
     // Cette route peut servir des données pour l'onglet "Prix"
-    const dataPath = path.join(__dirname, 'data', 'prices.json'); // Ajustez le chemin selon vos besoins
+    const dataPath = path.join(__dirname, 'data', 'minecraft-data.json'); // Ajustez le chemin selon vos besoins
     fs.readFile(dataPath, 'utf8', (err, data) => {
         if (err) {
             console.error('Erreur lors de la lecture du fichier de données des prix :', err);
@@ -43,7 +43,7 @@ app.get('/getMinecraftData', (req, res) => {
 
 app.post('/updateMinecraftData', (req, res) => {
     // Cette route peut être utilisée pour sauvegarder les données de l'onglet "Prix"
-    const dataPath = path.join(__dirname, 'data', 'prices.json'); // Ajustez le chemin selon vos besoins
+    const dataPath = path.join(__dirname, 'data', 'minecraft-data.json'); // Ajustez le chemin selon vos besoins
     fs.writeFile(dataPath, JSON.stringify(req.body, null, 2), async (err) => {
         if (err) {
             console.error('Erreur lors de la mise à jour des données des prix :', err);
@@ -51,7 +51,7 @@ app.post('/updateMinecraftData', (req, res) => {
             return;
         }
         console.log('Données des prix mises à jour avec succès.');
-        await uploadToSFTP(dataPath, '/plugins/cite/prices.json');
+        await uploadToSFTP(dataPath, '/plugins/cite/minecraft-data.json');
         res.sendStatus(200);
     });
 });
