@@ -4,25 +4,18 @@ const fs = require('fs');
 const path = require('path');
 const sftpClient = require('ssh2-sftp-client');
 const app = express();
-
-// Utilisez le port fourni par Vercel ou, par défaut, le port 3000 en local
 const port = process.env.PORT || 3000;
 
 app.use(bodyParser.json());
-
-// Servir les fichiers statiques depuis le dossier racine
 app.use(express.static(__dirname));
 
-// Configuration du client SFTP à partir des variables d'environnement
-// (Assurez-vous de définir ces variables d'environnement en production !)
 const SFTP_CONFIG = {
     host: 'msr6112.minestrator.com',
-    port: 2022, // Utilisez 2022 comme port par défaut si non défini
+    port: 2022,
     username: 'sushi12.6510e245',
     password: '3073Mon330Oct-MSR'
 };
 
-// Fonction pour envoyer un fichier local vers le serveur SFTP
 async function uploadToSFTP(localPath, remotePath) {
     const sftp = new sftpClient();
     try {
@@ -36,10 +29,12 @@ async function uploadToSFTP(localPath, remotePath) {
 }
 
 app.get('/getMinecraftData', (req, res) => {
-    fs.readFile('minecraft-data.json', 'utf8', (err, data) => {
+    // Cette route peut servir des données pour l'onglet "Prix"
+    const dataPath = path.join(__dirname, 'data', 'prices.json'); // Ajustez le chemin selon vos besoins
+    fs.readFile(dataPath, 'utf8', (err, data) => {
         if (err) {
-            console.error('Erreur lors de la lecture du fichier JSON :', err);
-            res.status(500).send('Erreur lors de la lecture du fichier JSON');
+            console.error('Erreur lors de la lecture du fichier de données des prix :', err);
+            res.status(500).send('Erreur lors de la lecture des données des prix');
             return;
         }
         res.send(data);
@@ -47,19 +42,22 @@ app.get('/getMinecraftData', (req, res) => {
 });
 
 app.post('/updateMinecraftData', (req, res) => {
-    const minecraftData = req.body;
-    fs.writeFile('minecraft-data.json', JSON.stringify(minecraftData, null, 2), async (err) => {
+    // Cette route peut être utilisée pour sauvegarder les données de l'onglet "Prix"
+    const dataPath = path.join(__dirname, 'data', 'prices.json'); // Ajustez le chemin selon vos besoins
+    fs.writeFile(dataPath, JSON.stringify(req.body, null, 2), async (err) => {
         if (err) {
-            console.error('Erreur lors de la mise à jour du fichier JSON :', err);
-            res.status(500).send('Erreur lors de la mise à jour du fichier JSON');
+            console.error('Erreur lors de la mise à jour des données des prix :', err);
+            res.status(500).send('Erreur lors de la mise à jour des données des prix');
             return;
         }
-        console.log('Fichier JSON mis à jour avec succès.');
-        await uploadToSFTP('minecraft-data.json', '/plugins/cite/minecraft-data.json');
+        console.log('Données des prix mises à jour avec succès.');
+        await uploadToSFTP(dataPath, '/plugins/cite/prices.json');
         res.sendStatus(200);
     });
 });
+
 app.get('/getAllPlayerStats', async (req, res) => {
+    // Cette route sert des données pour l'onglet "Stats"
     const sftp = new sftpClient();
     try {
         await sftp.connect(SFTP_CONFIG);
@@ -79,7 +77,6 @@ app.get('/getAllPlayerStats', async (req, res) => {
     }
 });
 
-// Route catch-all pour gérer toutes les autres requêtes et renvoyer l'index.html
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
@@ -87,5 +84,3 @@ app.get('*', (req, res) => {
 app.listen(port, () => {
     console.log(`Server started on port ${port}`);
 });
-
-
