@@ -233,16 +233,27 @@ function loadPlayerStats() {
 
         // Attacher les gestionnaires d'événements aux boutons
         document.addEventListener('DOMContentLoaded', () => {
-            const saveBtn = document.getElementById('saveButton');
-        if (saveBtn) {
-            saveBtn.addEventListener('click', saveData);
+        console.log('DOM entièrement chargé et analysé'); // Vérifiez si cette ligne s'affiche dans la console
+
+        // Attacher le gestionnaire d'événements pour le bouton "Sauvegarder"
+        const saveButton = document.getElementById('saveButton');
+        if (saveButton) {
+            saveButton.addEventListener('click', saveData);
         } else {
             console.error('Le bouton Sauvegarder est introuvable.');
         }
-            document.getElementById('loadStatsButton').addEventListener('click', loadPlayerStats);
-            // Ouvrir l'onglet Accueil par défaut
-            document.querySelector('.tablinks').click();
-        });
+
+        // Attacher le gestionnaire d'événements pour le bouton "Charger les stats des joueurs"
+        const loadStatsButton = document.getElementById('loadStatsButton');
+        if (loadStatsButton) {
+            loadStatsButton.addEventListener('click', loadPlayerStats);
+        } else {
+            console.error('Le bouton Charger les stats des joueurs est introuvable.');
+        }
+
+        // Ouvrir l'onglet "Accueil" par défaut
+        document.querySelector('.tablinks').click();
+    });
 
         // Charger les données JSON au chargement de la page
         loadJSON();
