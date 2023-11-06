@@ -141,7 +141,7 @@ function displayCategories(data) {
 
 // Fonction pour sauvegarder les données modifiées sur le serveur
 function saveData() {
-    console.error('bouton appelé');
+    console.log('bouton appelé');
     const objects = document.querySelectorAll(".object-value");
     const updatedData = {};
 
@@ -233,7 +233,12 @@ function loadPlayerStats() {
 
         // Attacher les gestionnaires d'événements aux boutons
         document.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('saveButton').addEventListener('click', saveData);
+            const saveBtn = document.getElementById('saveButton');
+        if (saveBtn) {
+            saveBtn.addEventListener('click', saveData);
+        } else {
+            console.error('Le bouton Sauvegarder est introuvable.');
+        }
             document.getElementById('loadStatsButton').addEventListener('click', loadPlayerStats);
             // Ouvrir l'onglet Accueil par défaut
             document.querySelector('.tablinks').click();
