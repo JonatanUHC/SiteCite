@@ -92,11 +92,56 @@ app.post('/register', async (req, res) => {
         res.status(500).send('Error during registration.');
     }
 });
+app.post('/reset-password-request', async (req, res) => {
+    const { email } = req.body;
+    const resetToken = crypto.randomBytes(20).toString('hex');
+    const expireTime = Date.now() + 3600000; // 1 heure pour la réinitialisation
 
+    try {
+        await db.execute('UPDATE Users SET reset_token = ?, reset_token_expires = ? WHERE email = ?', [resetToken, expireTime, email]);
+
+        const resetUrl = `${process.env.SITE_URL}/reset-password?token=${resetToken}`;
+
+        const mailOptions = {
+            from: 'info@rebornuhc.fr',
+            to: email,
+            subject: 'reset mdp',
+            html: `<p>Pour réinitialiser votre mot de passe, veuillez cliquer sur ce lien : <a href="${resetUrl}">${resetUrl}</a></p>`
+        };
+
+        await transporter.sendMail(mailOptions);
+        res.send('Instructions de réinitialisation du mot de passe envoyées par e-mail.');
+    } catch (error) {
+        console.error('Erreur lors de la demande de réinitialisation :', error);
+        res.status(500).send('Erreur lors de la demande de réinitialisation.');
+    }
+});
+app.post('/reset-password', async (req, res) => {
+    const { token, password, confirmPassword } = req.body;
+
+    if (password !== confirmPassword) {
+        return res.status(400).send('Les mots de passe ne correspondent pas.');
+    }
+
+    try {
+        const [user] = await db.execute('SELECT * FROM Users WHERE reset_token = ? AND reset_token_expires > ?', [token, Date.now()]);
+
+        if (user.length === 0) {
+            return res.status(400).send('Token de réinitialisation invalide ou expiré.');
+        }
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+        await db.execute('UPDATE Users SET password = ?, reset_token = NULL, reset_token_expires = NULL WHERE reset_token = ?', [hashedPassword, token]);
+
+        res.send('Mot de passe réinitialisé avec succès.');
+    } catch (error) {
+        console.error('Erreur lors de la réinitialisation du mot de passe :', error);
+        res.status(500).send('Erreur lors de la réinitialisation du mot de passe.');
+    }
+});
 // Login request
 app.post('/login', async function(req, res) {
     const { username, password } = req.body;
-
     try {
         const [rows] = await db.execute('SELECT * FROM Users WHERE username = ?', [username]);
         if (rows.length > 0) {
@@ -130,6 +175,7 @@ app.get('/activate-account', async (req, res) => {
         const [update] = await db.execute('UPDATE Users SET active = TRUE, activation_token = NULL WHERE activation_token = ?', [token]);
         if (update.affectedRows === 1) {
             // Si la mise à jour a réussi, redirigez l'utilisateur vers une page de confirmation ou la page de connexion
+            res.send('Tout est bon');
             res.redirect('/login?verified=true');
         } else {
             res.status(500).send('Erreur lors de la vérification de l\'e-mail.');
