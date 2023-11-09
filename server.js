@@ -81,10 +81,10 @@ app.post('/login', async function(req, res) {
                 req.session.username = username;
                 res.redirect('/');
             } else {
-                res.send('Incorrect username and/or password!');
+                res.send('Mauvais nom et/ou le mot de passe!');
             }
         } else {
-            res.send('Incorrect username and/or password!');
+            res.send('Mauvais nom et/ou le mot de passe!');
         }
     } catch (error) {
         console.error(error);
