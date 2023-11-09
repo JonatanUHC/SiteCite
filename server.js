@@ -8,10 +8,6 @@ const mysql = require('mysql2/promise');
 const bcrypt = require('bcrypt');
 const session = require('express-session');
 const MySQLStore = require('express-mysql-session')(session);
-const bodyParser = require('body-parser');
-const fs = require('fs');
-const path = require('path');
-const sftpClient = require('ssh2-sftp-client');
 const port = process.env.PORT || 3000;
 
 app.use(bodyParser.json());
