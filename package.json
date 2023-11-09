@@ -2,5 +2,6 @@
   "dependencies": {
     "express": "^4.18.2",
     "ssh2-sftp-client": "^9.1.0"
+ "mysql2": "^2.6.3" // La version peut varier
   }
 }
