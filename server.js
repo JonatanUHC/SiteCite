@@ -98,7 +98,10 @@ app.post('/reset-password-request', async (req, res) => {
     const expireTime = Date.now() + 3600000; // 1 heure pour la réinitialisation
 
     try {
-        await db.execute('UPDATE Users SET reset_token = ?, reset_token_expires = ? WHERE email = ?', [resetToken, expireTime, email]);
+        await db.execute(
+            'UPDATE Users SET reset_token = ?, reset_token_expires = ? WHERE email = ?',
+            [resetToken, expireTime, email]  // MySQL va automatiquement formater l'objet Date en format DATETIME
+        );
 
         const resetUrl = `${process.env.SITE_URL}/reset-password?token=${resetToken}`;
 
@@ -124,7 +127,8 @@ app.post('/reset-password', async (req, res) => {
     }
 
     try {
-        const [user] = await db.execute('SELECT * FROM Users WHERE reset_token = ? AND reset_token_expires > ?', [token, Date.now()]);
+        'SELECT * FROM Users WHERE reset_token = ? AND reset_token_expires > ?',
+            [token, new Date()] 
 
         if (user.length === 0) {
             return res.status(400).send('Token de réinitialisation invalide ou expiré.');
