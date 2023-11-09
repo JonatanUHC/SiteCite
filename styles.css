@@ -7,79 +7,108 @@ body {
     transition: background-color 0.3s;
 }
 
-h1 {
-    text-align: center;
-    padding: 20px 0;
-}
-
-h2 {
-    color: #f1f1f1;
-    border-bottom: 2px solid #ddd;
-    padding-bottom: 10px;
-}
-
-#categories-container {
-    width: 80%;
-    margin: 20px auto;
-    padding: 20px;
-    background-color: #282828;
-}
-
-ul {
+nav ul {
     list-style-type: none;
     padding: 0;
-}
-
-li {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 0;
-    border-bottom: 1px solid #333;
-}
-
-.object-value {
+    text-align: center;
     background-color: #333;
-    border: 1px solid #444;
-    color: #f1f1f1;
-    padding: 5px 10px;
+    margin: 0;
+    overflow: hidden;
+}
+
+nav li {
+    display: inline;
+}
+
+nav li a {
+    display: inline-block;
+    color: white;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+}
+
+nav li a:hover {
+    background-color: #ddd;
+    color: black;
+}
+
+section {
+    width: 300px;
+    margin: 50px auto;
+    background-color: #282828;
+    padding: 20px;
     border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+input[type='text'],
+input[type='password'],
+input[type='number'] {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-sizing: border-box;
 }
 
 button {
-    display: block;
-    margin: 30px auto;
-    padding: 10px 20px;
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
     background-color: #007BFF;
     color: #fff;
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    transition: background-color 0.3s;
 }
 
 button:hover {
     background-color: #0056b3;
 }
 
-.notification {
-    position: fixed;
-    bottom: 50px;
-    left: 50%;
-    transform: translateX(-50%);
-    padding: 10px 20px;
-    background-color: #4CAF50;
-    color: #fff;
+#minecraft-container {
+    display: none; /* Masqué par défaut, affiché après connexion */
+    margin: 0 auto;
+    padding: 20px;
+    max-width: 800px;
+}
+
+#categories-container h2 {
+    color: #f1f1f1;
+    border-bottom: 2px solid #ddd;
+    padding-bottom: 10px;
+}
+
+#categories-container ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+#categories-container li {
+    background-color: #333;
+    margin-bottom: 8px;
+    padding: 10px;
     border-radius: 5px;
 }
 
-@keyframes popIn {
-    from {
-        transform: scale(0.5);
-        opacity: 0;
-    }
-    to {
-        transform: scale(1);
-        opacity: 1;
-    }
+.object-value {
+    width: 80px;
+    margin-left: 10px;
 }
+
+.notification {
+    display: none; /* Masqué par défaut, affiché après action */
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #4CAF50;
+    color: #fff;
+    padding: 10px;
+    border-radius: 5px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+}
+
+/* Ajoutez des animations ou transitions supplémentaires ici si nécessaire */
