@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const bodyParser = require('body-parser');
 const fs = require('fs');
@@ -7,6 +8,8 @@ const app = express();
 const mysql = require('mysql2/promise');
 const bcrypt = require('bcrypt');
 const session = require('express-session');
+const crypto = require('crypto');
+const nodemailer = require('nodemailer');
 const MySQLStore = require('express-mysql-session')(session);
 const port = process.env.PORT || 3000;
 
@@ -33,7 +36,14 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 // Serve static files from the public directory
 app.use(express.static('public'));
-
+const transporter = nodemailer.createTransport({
+    host: 'smtp.elasticemail.com',
+    port: 2525, // or 465 if you are using secure: true
+    auth: {
+        user: 'jonatangaudin@gmail.com',
+        pass: '94E20E2A95A38F79294F365A531F9C509463'
+    }
+});
 // Routes
 // Homepage
 app.get('/', function(req, res) {
@@ -54,17 +64,32 @@ app.get('/register', function(req, res) {
     res.sendFile(path.join(__dirname, 'register.html'));
 });
 
-// Registration request
-app.post('/register', async function(req, res) {
-    const { username, password } = req.body;
+app.post('/register', async (req, res) => {
+    const { username, email, password } = req.body;
     const hashedPassword = await bcrypt.hash(password, 10);
+    const activationToken = crypto.randomBytes(20).toString('hex');
 
     try {
-        const result = await db.execute('INSERT INTO users (username, password) VALUES (?, ?)', [username, hashedPassword]);
-        res.redirect('/login');
+        const [emailExists] = await db.execute('SELECT * FROM Users WHERE email = ?', [email]);
+        if (emailExists.length > 0) {
+            return res.status(409).send('E-mail already registered.');
+        }
+
+        const [insertResult] = await db.execute('INSERT INTO Users (username, email, password, activation_token) VALUES (?, ?, ?, ?)', [username, email, hashedPassword, activationToken]);
+
+        // Send verification email
+        const mailOptions = {
+            from: 'info@rebornuhc.fr',
+            to: email,
+            subject: 'Account Verification',
+            html: `<p>Please confirm your email by clicking on the following link: <a href="${process.env.SITE_URL}/activate-account?token=${activationToken}">${process.env.SITE_URL}/activate-account?token=${activationToken}</a></p>`
+        };
+
+        await transporter.sendMail(mailOptions);
+        res.send('Registration successful! Please check your email to verify your account.');
     } catch (error) {
-        console.error(error);
-        res.status(500).send('Error registering new user.');
+        console.error('Registration error:', error);
+        res.status(500).send('Error during registration.');
     }
 });
 
@@ -73,7 +98,7 @@ app.post('/login', async function(req, res) {
     const { username, password } = req.body;
 
     try {
-        const [rows] = await db.execute('SELECT * FROM users WHERE username = ?', [username]);
+        const [rows] = await db.execute('SELECT * FROM Users WHERE username = ?', [username]);
         if (rows.length > 0) {
             const comparison = await bcrypt.compare(password, rows[0].password);
             if (comparison) {
