@@ -4,18 +4,25 @@ const fs = require('fs');
 const path = require('path');
 const sftpClient = require('ssh2-sftp-client');
 const app = express();
+
+// Utilisez le port fourni par Vercel ou, par défaut, le port 3000 en local
 const port = process.env.PORT || 3000;
 
 app.use(bodyParser.json());
+
+// Servir les fichiers statiques depuis le dossier racine
 app.use(express.static(__dirname));
 
+// Configuration du client SFTP à partir des variables d'environnement
+// (Assurez-vous de définir ces variables d'environnement en production !)
 const SFTP_CONFIG = {
     host: 'msr6112.minestrator.com',
-    port: 2022,
+    port: 2022, // Utilisez 2022 comme port par défaut si non défini
     username: 'sushi12.6510e245',
     password: '3073Mon330Oct-MSR'
 };
 
+// Fonction pour envoyer un fichier local vers le serveur SFTP
 async function uploadToSFTP(localPath, remotePath) {
     const sftp = new sftpClient();
     try {
@@ -53,27 +60,7 @@ app.post('/updateMinecraftData', (req, res) => {
     });
 });
 
-app.get('/getAllPlayerStats', async (req, res) => {
-    // Cette route sert des données pour l'onglet "Stats"
-    const sftp = new sftpClient();
-    try {
-        await sftp.connect(SFTP_CONFIG);
-        const fileList = await sftp.list('/world/stats');
-        const playerStatsPromises = fileList.map(file => {
-            return sftp.get(`/world/stats/${file.name}`);
-        });
-
-        const statsFiles = await Promise.all(playerStatsPromises);
-        const allStats = statsFiles.map(buffer => JSON.parse(buffer.toString()));
-        res.json(allStats);
-    } catch (error) {
-        console.error('Erreur lors de la récupération des fichiers stats des joueurs via SFTP:', error);
-        res.status(500).send('Erreur lors de la récupération des stats des joueurs');
-    } finally {
-        await sftp.end();
-    }
-});
-
+// Route catch-all pour gérer toutes les autres requêtes et renvoyer l'index.html
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
