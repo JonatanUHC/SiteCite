@@ -4,7 +4,6 @@ const fs = require('fs');
 const path = require('path');
 const sftpClient = require('ssh2-sftp-client');
 const app = express();
-const express = require('express');
 const mysql = require('mysql2/promise');
 const bcrypt = require('bcrypt');
 const session = require('express-session');
