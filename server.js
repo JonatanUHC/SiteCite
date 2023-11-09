@@ -116,6 +116,29 @@ app.post('/login', async function(req, res) {
         res.status(500).send('Error logging in.');
     }
 });
+app.get('/activate-account', async (req, res) => {
+    const { token } = req.query; // Récupérez le token de la requête
+
+    try {
+        // Vérifiez si le token correspond à un utilisateur
+        const [users] = await db.execute('SELECT * FROM Users WHERE activation_token = ?', [token]);
+        if (users.length === 0) {
+            return res.status(404).send('Lien de vérification invalide ou déjà utilisé.');
+        }
+
+        // Mettez à jour le statut de l'utilisateur comme vérifié
+        const [update] = await db.execute('UPDATE Users SET active = TRUE, activation_token = NULL WHERE activation_token = ?', [token]);
+        if (update.affectedRows === 1) {
+            // Si la mise à jour a réussi, redirigez l'utilisateur vers une page de confirmation ou la page de connexion
+            res.redirect('/login?verified=true');
+        } else {
+            res.status(500).send('Erreur lors de la vérification de l\'e-mail.');
+        }
+    } catch (error) {
+        console.error('Erreur lors de la vérification de l\'e-mail :', error);
+        res.status(500).send('Erreur serveur interne.');
+    }
+});
 
 // Logout request
 app.get('/logout', function(req, res) {
