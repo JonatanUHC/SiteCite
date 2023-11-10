@@ -163,16 +163,32 @@ app.post('/login', async function(req, res) {
             if (comparison) {
                 req.session.loggedin = true;
                 req.session.username = username;
-                res.redirect('/');
+                // Envoyez une réponse JSON indiquant le succès et l'état de connexion
+                res.json({
+                    success: true,
+                    message: 'Connexion réussie',
+                    username: username
+                });
             } else {
-                res.send('Mauvais nom et/ou le mot de passe!');
+                // Mauvais mot de passe
+                res.json({
+                    success: false,
+                    message: 'Mauvais nom et/ou le mot de passe!'
+                });
             }
         } else {
-            res.send('Mauvais nom et/ou le mot de passe!');
+            // Le nom d'utilisateur n'existe pas
+            res.json({
+                success: false,
+                message: 'Mauvais nom et/ou le mot de passe!'
+            });
         }
     } catch (error) {
         console.error(error);
-        res.status(500).send('Error logging in.');
+        res.status(500).json({
+            success: false,
+            message: 'Erreur lors de la connexion.'
+        });
     }
 });
 app.get('/activate-account', async (req, res) => {
@@ -254,7 +270,15 @@ app.post('/updateMinecraftData', (req, res) => {
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
-
+app.get('/', function(req, res) {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
+app.get('/api/session-status', function(req, res) {
+    res.json({
+        isLoggedIn: req.session.loggedin || false,
+        username: req.session.username || ''
+    });
+});
 app.listen(port, () => {
     console.log(`Server started on port ${port}`);
 });

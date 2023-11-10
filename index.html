@@ -23,13 +23,58 @@
     <button onclick="saveData()">Sauvegarder</button>
 
     <script src="client.js"></script>
-
     <!-- Ajouter un lien ou un bouton pour afficher les stats des joueurs -->
     <button onclick="loadPlayerStats()">Voir les stats des joueurs</button>
-
+    <span id="user-info" style="display: none;"></span>
+    <a id="login-link" href="/login">Connexion</a>
+    <a id="register-link" href="/register">Inscription</a>
+    <a id="logout-link" href="/logout" style="display: none;">Déconnexion</a>
     <!-- Votre autre script existant -->
     <script>
-        // Votre autre code JavaScript
+        // Supposons que vous avez déjà supprimé la syntaxe EJS
+        var isLoggedIn = false;
+        var username = '';
+    
+        // Faites une demande pour obtenir l'état de la session
+        fetch('/api/session-status').then(response => response.json()).then(data => {
+            isLoggedIn = data.isLoggedIn;
+            username = data.username;
+    
+            // Maintenant, utilisez `isLoggedIn` et `username` pour mettre à jour l'UI
+            if (isLoggedIn) {
+                // Cachez les liens de connexion et d'inscription et affichez le nom d'utilisateur
+                document.getElementById('login-link').style.display = 'none';
+                document.getElementById('register-link').style.display = 'none';
+                // Supposons que vous ayez un élément pour afficher le nom d'utilisateur
+                document.getElementById('user-info').textContent = 'Vous êtes bien connecté : ' + username;
+                document.getElementById('user-info').style.display = 'block';
+            } else {
+                // Affichez les liens de connexion et d'inscription
+                document.getElementById('login-link').style.display = 'block';
+                document.getElementById('register-link').style.display = 'block';
+                document.getElementById('user-info').style.display = 'none';
+            }
+        }).catch(error => {
+            console.error('Erreur lors de la récupération de létat de la session:', error);
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            fetch('/api/session')
+                .then(response => response.json())
+                .then(session => {
+                    if (session.isLoggedIn) {
+                        document.getElementById('login-link').style.display = 'none';
+                        document.getElementById('register-link').style.display = 'none';
+                        const userInfo = document.getElementById('user-info');
+                        userInfo.style.display = 'block';
+                        userInfo.textContent = 'Vous êtes bien connecté : ' + session.username;
+                    } else {
+                        document.getElementById('logout-link').style.display = 'none';
+                    }
+                })
+                .catch(error => console.error('Erreur lors de la récupération de la session', error));
+        });
     </script>
 </body>
 

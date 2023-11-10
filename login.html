@@ -7,7 +7,7 @@
 </head>
 <body>
     <h2>Connexion</h2>
-    <form action="/login" method="post">
+    <form id="login-form">
         <div>
             <label for="username">Nom d'utilisateur:</label>
             <input type="text" id="username" name="username" required>
@@ -17,10 +17,41 @@
             <input type="password" id="password" name="password" required>
         </div>
         <div>
-            <button type="submit">Connexion</button>
+            <button type="button" id="login-button">Connexion</button>
         </div>
     </form>
     <a href="/register">Créer un compte siu</a>
     <a href="/reset-password-request">OUBLIE DE MDP ?</a>
+
+    <script>
+        document.getElementById('login-button').addEventListener('click', function() {
+            var username = document.getElementById('username').value;
+            var password = document.getElementById('password').value;
+
+            fetch('/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    username: username,
+                    password: password
+                }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Si la connexion réussit, redirigez vers la page d'accueil
+                    window.location.href = '/';
+                } else {
+                    // Si la connexion échoue, affichez un message d'erreur
+                    alert(data.message);
+                }
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        });
+    </script>
 </body>
 </html>
