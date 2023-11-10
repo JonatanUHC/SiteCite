@@ -130,15 +130,22 @@ app.post('/reset-password', async (req, res) => {
     }
 
     try {
-        'SELECT * FROM Users WHERE reset_token = ?',
-            [token, new Date()] 
+        // Vérifiez si le token correspond à un utilisateur
+        const [users] = await db.execute('SELECT * FROM Users WHERE reset_token = ?', [token]);
 
-        if (user.length === 0) {
-            return res.status(400).send('Token de réinitialisation invalide ou expiré.');
+        // Si aucun utilisateur n'a été trouvé avec ce token, retournez une erreur
+        if (users.length === 0) {
+            return res.status(400).send('Token de réinitialisation invalide.');
         }
 
+        // Assumons que le token est unique, donc prenez le premier utilisateur
+        const user = users[0];
+
+        // Hash le nouveau mot de passe
         const hashedPassword = await bcrypt.hash(password, 10);
-        await db.execute('UPDATE Users SET password = ?, reset_token = NULL, WHERE reset_token = ?', [hashedPassword, token]);
+
+        // Mettez à jour le mot de passe de l'utilisateur et effacez le token de réinitialisation
+        await db.execute('UPDATE Users SET password = ?, reset_token = NULL WHERE reset_token = ?', [hashedPassword, token]);
 
         res.send('Mot de passe réinitialisé avec succès.');
     } catch (error) {
