@@ -154,6 +154,7 @@ app.post('/reset-password', async (req, res) => {
     }
 });
 // Login request
+// Login request
 app.post('/login', async function(req, res) {
     const { username, password } = req.body;
     try {
@@ -163,21 +164,18 @@ app.post('/login', async function(req, res) {
             if (comparison) {
                 req.session.loggedin = true;
                 req.session.username = username;
-                // Envoyez une réponse JSON indiquant le succès et l'état de connexion
                 res.json({
                     success: true,
                     message: 'Connexion réussie',
                     username: username
                 });
             } else {
-                // Mauvais mot de passe
                 res.json({
                     success: false,
                     message: 'Mauvais nom et/ou le mot de passe!'
                 });
             }
         } else {
-            // Le nom d'utilisateur n'existe pas
             res.json({
                 success: false,
                 message: 'Mauvais nom et/ou le mot de passe!'
