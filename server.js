@@ -63,7 +63,12 @@ app.get('/login', function(req, res) {
 app.get('/register', function(req, res) {
     res.sendFile(path.join(__dirname, 'register.html'));
 });
-
+app.get('/reset-password-request', function(req, res) {
+    res.sendFile(path.join(__dirname, 'reset-password-request.html'));
+});
+app.get('/reset-password', function(req, res) {
+    res.sendFile(path.join(__dirname, 'reset-password.html'));
+});
 app.post('/register', async (req, res) => {
     const { username, email, password } = req.body;
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -95,13 +100,11 @@ app.post('/register', async (req, res) => {
 app.post('/reset-password-request', async (req, res) => {
     const { email } = req.body;
     const resetToken = crypto.randomBytes(20).toString('hex');
-    const expireTime = Date.now() + 3600000; // 1 heure pour la réinitialisation
 
     try {
-        await db.execute(
-            'UPDATE Users SET reset_token = ?, reset_token_expires = ? WHERE email = ?',
-            [resetToken, expireTime, email]  // MySQL va automatiquement formater l'objet Date en format DATETIME
-        );
+
+        await db.execute('UPDATE Users SET reset_token = ? WHERE email = ?', [resetToken, email]);
+
 
         const resetUrl = `${process.env.SITE_URL}/reset-password?token=${resetToken}`;
 
@@ -127,7 +130,7 @@ app.post('/reset-password', async (req, res) => {
     }
 
     try {
-        'SELECT * FROM Users WHERE reset_token = ? AND reset_token_expires > ?',
+        'SELECT * FROM Users WHERE reset_token = ?',
             [token, new Date()] 
 
         if (user.length === 0) {
@@ -135,7 +138,7 @@ app.post('/reset-password', async (req, res) => {
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
-        await db.execute('UPDATE Users SET password = ?, reset_token = NULL, reset_token_expires = NULL WHERE reset_token = ?', [hashedPassword, token]);
+        await db.execute('UPDATE Users SET password = ?, reset_token = NULL, WHERE reset_token = ?', [hashedPassword, token]);
 
         res.send('Mot de passe réinitialisé avec succès.');
     } catch (error) {
