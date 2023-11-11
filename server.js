@@ -34,9 +34,11 @@ app.use(session({
     cookie: {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production", // Utilisez 'secure' uniquement en production avec HTTPS
+        sameSite: process.env.NODE_ENV === "production" ? 'None' : 'Lax', // Utilisez 'None' pour cross-domain en production
         maxAge: 24 * 60 * 60 * 1000 // Durée de vie du cookie (ici, 1 jour en millisecondes)
     }
 }));
+
 
 app.use(bodyParser.urlencoded({ extended: true }));
 
