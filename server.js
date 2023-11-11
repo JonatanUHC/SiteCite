@@ -30,8 +30,14 @@ app.use(session({
     secret: 'siu',
     store: new MySQLStore({}, db),
     resave: false,
-    saveUninitialized: false
+    saveUninitialized: false,
+    cookie: {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production", // Utilisez 'secure' uniquement en production avec HTTPS
+        maxAge: 24 * 60 * 60 * 1000 // Durée de vie du cookie (ici, 1 jour en millisecondes)
+    }
 }));
+
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // Serve static files from the public directory
@@ -46,6 +52,16 @@ const transporter = nodemailer.createTransport({
 });
 // Routes
 // Homepage
+
+app.get('/api/session-status', function(req, res) {
+    if (req.session.loggedin) {
+        res.json({ isLoggedIn: true, username: req.session.username });
+        console.log("Session actuelle:", req.session);
+    } else {
+        res.json({ isLoggedIn: false });
+    }
+});
+
 app.get('/', function(req, res) {
     if (req.session.loggedin) {
         res.sendFile(path.join(__dirname, 'index.html'));
@@ -58,10 +74,15 @@ app.get('/', function(req, res) {
 app.get('/login', function(req, res) {
     res.sendFile(path.join(__dirname, 'login.html'));
 });
-
+app.get('/home', function(req, res) {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
 // Registration page
 app.get('/register', function(req, res) {
     res.sendFile(path.join(__dirname, 'register.html'));
+});
+app.get('/prix', function(req, res) {
+    res.sendFile(path.join(__dirname, 'prix.html'));
 });
 app.get('/reset-password-request', function(req, res) {
     res.sendFile(path.join(__dirname, 'reset-password-request.html'));
@@ -164,6 +185,7 @@ app.post('/login', async function(req, res) {
             if (comparison) {
                 req.session.loggedin = true;
                 req.session.username = username;
+                console.log("Session après connexion:", req.session);
                 res.json({
                     success: true,
                     message: 'Connexion réussie',
@@ -270,12 +292,6 @@ app.get('*', (req, res) => {
 });
 app.get('/', function(req, res) {
     res.sendFile(path.join(__dirname, 'index.html'));
-});
-app.get('/api/session-status', function(req, res) {
-    res.json({
-        isLoggedIn: req.session.loggedin || false,
-        username: req.session.username || ''
-    });
 });
 app.listen(port, () => {
     console.log(`Server started on port ${port}`);

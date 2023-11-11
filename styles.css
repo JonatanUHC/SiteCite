@@ -1,114 +1,100 @@
-body {
-    background-color: #181818;
-    color: #f1f1f1;
-    font-family: 'Arial', sans-serif;
+/* Réinitialisation et styles de base */
+* {
     margin: 0;
     padding: 0;
-    transition: background-color 0.3s;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-nav ul {
+body {
+    background-color: #2d2f34; /* Fond plus neutre */
+    color: #ffffff;
+    font-size: 16px;
+    line-height: 1.6;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+/* Styles du menu latéral */
+.sidebar {
+    height: 100vh;
+    width: 250px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background-color: #222;
+    box-shadow: 3px 0 10px rgba(0, 0, 0, 0.5);
+    padding-top: 20px;
+    z-index: 2;
+}
+
+.sidebar ul {
     list-style-type: none;
     padding: 0;
-    text-align: center;
-    background-color: #333;
-    margin: 0;
-    overflow: hidden;
 }
 
-nav li {
-    display: inline;
+.sidebar ul li a {
+    display: block;
+    padding: 15px;
+    color: #ffffff;
+    transition: background-color 0.3s, color 0.3s;
 }
 
-nav li a {
-    display: inline-block;
-    color: white;
-    text-align: center;
-    padding: 14px 16px;
-    text-decoration: none;
+.sidebar ul li a:hover {
+    background-color: #444;
 }
 
-nav li a:hover {
-    background-color: #ddd;
-    color: black;
-}
-
-section {
-    width: 300px;
-    margin: 50px auto;
-    background-color: #282828;
+/* Conteneur principal pour les éléments de connexion */
+.content {
+    width: 100%;
+    max-width: 400px;
     padding: 20px;
-    border-radius: 5px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
-input[type='text'],
-input[type='password'],
-input[type='number'] {
+/* Titre de connexion */
+h2 {
+    font-size: 24px; /* Taille de police pour le titre */
+    color: #ddd; /* Couleur plus douce pour le titre */
+    margin-bottom: 20px;
+}
+
+/* Champs de saisie et bouton de connexion */
+input[type='text'], input[type='password'], button {
     width: 100%;
+    max-width: 300px; /* Ajustement de la largeur */
     padding: 10px;
-    margin: 10px 0;
-    border: 1px solid #ddd;
+    margin-bottom: 10px;
     border-radius: 5px;
-    box-sizing: border-box;
+    border: 1px solid #aaa; /* Bordure plus subtile */
 }
 
+/* Bouton de connexion */
 button {
-    width: 100%;
-    padding: 10px;
-    margin-top: 10px;
-    background-color: #007BFF;
+    background-color: #9500f8; /* Vert pour le bouton */
     color: #fff;
+    font-size: 16px;
     border: none;
-    border-radius: 5px;
-    cursor: pointer;
 }
 
 button:hover {
-    background-color: #0056b3;
+    background-color: #45a049; /* Un vert légèrement plus foncé au survol */
 }
 
-#minecraft-container {
-    display: none; /* Masqué par défaut, affiché après connexion */
-    margin: 0 auto;
-    padding: 20px;
-    max-width: 800px;
+/* Liens sous le bouton */
+.link, .forgot-pw {
+    color: #ddd; /* Couleur plus douce pour les liens */
+    font-size: 14px; /* Taille de police réduite pour les liens */
+    margin-top: 15px; /* Espace au-dessus des liens */
+    margin-bottom: 0; /* Pas d'espace en dessous des liens */
+    text-decoration: none; /* Pas de soulignement */
 }
 
-#categories-container h2 {
-    color: #f1f1f1;
-    border-bottom: 2px solid #ddd;
-    padding-bottom: 10px;
+.link:hover, .forgot-pw:hover {
+    text-decoration: underline; /* Soulignement au survol */
 }
-
-#categories-container ul {
-    list-style-type: none;
-    padding: 0;
-}
-
-#categories-container li {
-    background-color: #333;
-    margin-bottom: 8px;
-    padding: 10px;
-    border-radius: 5px;
-}
-
-.object-value {
-    width: 80px;
-    margin-left: 10px;
-}
-
-.notification {
-    display: none; /* Masqué par défaut, affiché après action */
-    position: fixed;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    background-color: #4CAF50;
-    color: #fff;
-    padding: 10px;
-    border-radius: 5px;
-    box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
-}
-
-/* Ajoutez des animations ou transitions supplémentaires ici si nécessaire */
