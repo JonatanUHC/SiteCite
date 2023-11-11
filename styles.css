@@ -6,16 +6,19 @@
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
+
 body {
-    background-color: #2d2f34; /* Fond plus neutre */
-    color: #ffffff;
-    font-size: 16px;
-    line-height: 1.6;
     display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
+    min-height: 100vh; /* Hauteur complète de la fenêtre de visualisation */
+    margin-left: 250px; /* Décaler le contenu pour la largeur de la sidebar */
+    background-color: #f4f4f4; /* Couleur de fond de votre choix */
+    align-items: center; /* Centrer le contenu verticalement */
+    justify-content: center; /* Centrer le contenu horizontalement */
+}
+
+a {
+    color: #333;
+    text-decoration: none;
 }
 
 /* Styles du menu latéral */
@@ -23,78 +26,99 @@ body {
     height: 100vh;
     width: 250px;
     position: fixed;
+    z-index: 1;
     top: 0;
     left: 0;
-    background-color: #222;
-    box-shadow: 3px 0 10px rgba(0, 0, 0, 0.5);
+    background-color: #fff;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
     padding-top: 20px;
-    z-index: 2;
 }
 
 .sidebar ul {
     list-style-type: none;
-    padding: 0;
+}
+
+.sidebar ul li {
+    padding: 10px;
 }
 
 .sidebar ul li a {
     display: block;
-    padding: 15px;
-    color: #ffffff;
+    padding: 10px;
     transition: background-color 0.3s, color 0.3s;
 }
 
 .sidebar ul li a:hover {
-    background-color: #444;
+    background-color: #007bff;
+    color: #fff;
 }
-
-/* Conteneur principal pour les éléments de connexion */
 .content {
     width: 100%;
-    max-width: 400px;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    max-width: 500px; /* Largeur maximale pour le contenu central */
+    margin: 0 auto; /* Centrage horizontal si la largeur est inférieure à 100% */
+    padding: 20px; /* Espace autour du contenu */
+}
+/* Styles pour centrer le contenu de .content horizontalement et verticalement */
+.content > * {
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 300px; /* Largeur maximale des champs et des boutons */
 }
 
-/* Titre de connexion */
-h2 {
-    font-size: 24px; /* Taille de police pour le titre */
-    color: #ddd; /* Couleur plus douce pour le titre */
+/* Styles des champs de saisie */
+input[type='text'], input[type='password'], input[type='number'] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+
+/* Styles des titres */
+h1 {
+    color: #333;
+    font-size: 2.5em;
     margin-bottom: 20px;
 }
 
-/* Champs de saisie et bouton de connexion */
-input[type='text'], input[type='password'], button {
-    width: 100%;
-    max-width: 300px; /* Ajustement de la largeur */
-    padding: 10px;
-    margin-bottom: 10px;
-    border-radius: 5px;
-    border: 1px solid #aaa; /* Bordure plus subtile */
-}
-
-/* Bouton de connexion */
+/* Styles des boutons */
 button {
-    background-color: #9500f8; /* Vert pour le bouton */
+    background-color: #007bff;
     color: #fff;
-    font-size: 16px;
     border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
 }
 
 button:hover {
-    background-color: #45a049; /* Un vert légèrement plus foncé au survol */
+    background-color: #0056b3;
 }
 
-/* Liens sous le bouton */
-.link, .forgot-pw {
-    color: #ddd; /* Couleur plus douce pour les liens */
-    font-size: 14px; /* Taille de police réduite pour les liens */
-    margin-top: 15px; /* Espace au-dessus des liens */
-    margin-bottom: 0; /* Pas d'espace en dessous des liens */
-    text-decoration: none; /* Pas de soulignement */
+/* Styles des champs de saisie */
+input[type='text'], input[type='password'], input[type='number'] {
+    width: 100%;
+    max-width: 300px; /* Largeur maximale des champs */
+    padding: 10px;
+    margin: 10px 0; /* Marges verticales pour espacement */
+    border: 1px solid #ddd;
+    border-radius: 5px;
 }
 
-.link:hover, .forgot-pw:hover {
-    text-decoration: underline; /* Soulignement au survol */
+/* Styles pour les notifications */
+.notification {
+    background-color: #4CAF50;
+    color: #fff;
+    padding: 10px;
+    border-radius: 5px;
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    display: none;
 }
+
+/* Ajoutez des styles personnalisés supplémentaires ici */
